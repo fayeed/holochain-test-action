@@ -3,9 +3,7 @@ name: Build/release
 on:
   push:
     branches:
-      - master
-    tags:
-      - 'v*'
+      - main
 
 jobs:
   build_linux:
