@@ -1,0 +1,36 @@
+name: Build/release
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'v*'
+
+jobs:
+  build_linux:
+    name: Linux build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Get Holochain
+        run: |
+          ./scripts/get-holochain.sh
+      - uses: Swatinem/rust-cache@v1
+        with:
+          working-directory: ./resources/temp/holochain
+      - name: Build Holochain
+        run: |
+          rustup target add wasm32-unknown-unknown
+          cd ./resources/temp/holochain 
+          cargo install --path crates/holochain
+          cargo install --path crates/hc
+          cd ../lair 
+          cargo install --path crates/lair_keystore 
+          cd ../../../
+          ./scripts/copy-hc.sh
+          rm -rf ./resources/temp/holochain
+          rm -rf ./resources/temp/lair
